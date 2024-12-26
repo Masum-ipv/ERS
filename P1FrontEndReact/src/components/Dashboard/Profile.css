@@ -1,0 +1,22 @@
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: normal;
+  padding: 10px;
+  height: 100vh;
+  width: 100%;
+}
+
+.css-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: skyblue;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.nav-link-black {
+  color: black;
+  font-weight: bold;
+}
