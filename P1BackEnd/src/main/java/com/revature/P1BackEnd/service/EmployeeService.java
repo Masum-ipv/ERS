@@ -26,7 +26,9 @@ public class EmployeeService {
     public ResponseEntity<?> getEmployee() {
         List<Employee> employees = employeeRepository.findAll();
         logger.info("Retrieving all employees, Employee count: {}", employees.size());
-        List<EmployeeDTO> employeeDTOs = employees.stream().map(employee -> new EmployeeDTO(employee.getEmployeeId(), employee.getName(), employee.getEmail(), employee.getRole())).toList();
+        List<EmployeeDTO> employeeDTOs = employees.stream().map(employee -> new EmployeeDTO(
+                employee.getEmployeeId(), employee.getName(),
+                employee.getEmail(), employee.getRole())).toList();
         return ResponseEntity.ok(employeeDTOs);
     }
 
