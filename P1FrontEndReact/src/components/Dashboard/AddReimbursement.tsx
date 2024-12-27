@@ -1,6 +1,7 @@
 import { Modal, Button, Form } from "react-bootstrap";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { BASE_URL } from "../Utils/Config";
 
 interface Props {
   userName: string;
@@ -8,7 +9,6 @@ interface Props {
   showModal: boolean;
   handleClose: () => void;
 }
-const BASE_URL = "http://127.0.0.1:8080/reimbursement";
 
 function AddReimbursement({ userName, userId, showModal, handleClose }: Props) {
   const [formData, setFormData] = useState({
@@ -28,7 +28,7 @@ function AddReimbursement({ userName, userId, showModal, handleClose }: Props) {
     const fetchData = async () => {
       console.log("User Data:", formData);
       try {
-        const response = await fetch(BASE_URL, {
+        const response = await fetch(BASE_URL + "/reimbursement", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

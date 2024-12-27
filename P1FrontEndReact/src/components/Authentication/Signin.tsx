@@ -5,8 +5,7 @@ import { Button, Form } from "react-bootstrap";
 import Loading from "../Utils/Loading";
 import SomethingWentWrong from "../Utils/SomethingWentWrong";
 import InputField from "../Utils/InputField";
-
-const BASE_URL = "http://127.0.0.1:8080/employee";
+import { BASE_URL } from "../Utils/Config";
 function Authentication() {
   const [registeredAccount, setRegisteredAccount] = useState("Sign In");
   const [formData, setFormData] = useState({
@@ -39,7 +38,8 @@ function Authentication() {
 
   const handleSubmit = () => {
     const fetchData = async () => {
-      let END_POINT = registeredAccount === "Sign Up" ? "" : "/login";
+      let END_POINT =
+        registeredAccount === "Sign Up" ? "/employee" : "/employee/login";
       setIsLoading(true);
       try {
         const response = await fetch(BASE_URL + END_POINT, {

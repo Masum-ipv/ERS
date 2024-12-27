@@ -5,12 +5,12 @@ import { User } from "../Interfaces/UserInterface";
 import UpdateReimbursement from "./UpdateReimbursement";
 import Loading from "../Utils/Loading";
 import SomethingWentWrong from "../Utils/SomethingWentWrong";
+import { BASE_URL } from "../Utils/Config";
 
 interface UserProps {
   user: User;
   refreshKey: number;
 }
-const BASE_URL = "http://127.0.0.1:8080/reimbursement";
 
 function DataTable({ user, refreshKey }: UserProps) {
   let END_POINT = "";
@@ -39,7 +39,7 @@ function DataTable({ user, refreshKey }: UserProps) {
     }
     setIsLoading(true);
     try {
-      const response = await fetch(BASE_URL + END_POINT);
+      const response = await fetch(BASE_URL + "/reimbursement" + END_POINT);
       const data = await response.json();
       setReimbursements(data);
       setError("");
@@ -87,7 +87,7 @@ function DataTable({ user, refreshKey }: UserProps) {
       </div>
 
       <Container style={{ maxHeight: "350px", overflowY: "auto" }}>
-        <Table className="table-primary table-hover">
+        <Table className="table table-hover table-striped">
           <thead className="thead-dark">
             <tr>
               <th>Reimbesment ID</th>

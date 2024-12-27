@@ -3,8 +3,7 @@ import Loading from "../Utils/Loading";
 import { User } from "../Interfaces/UserInterface";
 import { Button, Container, Table } from "react-bootstrap";
 import SomethingWentWrong from "../Utils/SomethingWentWrong";
-
-const BASE_URL = "http://127.0.0.1:8080/employee";
+import { BASE_URL } from "../Utils/Config";
 
 function DataTable() {
   const [employees, setEmployees] = useState<User[]>([]);
@@ -18,7 +17,7 @@ function DataTable() {
   const fetchEmployees = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(BASE_URL);
+      const response = await fetch(BASE_URL + "/employee");
       const data = await response.json();
       setEmployees(data);
       setError("");
@@ -80,7 +79,7 @@ function DataTable() {
       style={{ maxHeight: "360px", overflowY: "auto" }}
       className="mt-4"
     >
-      <Table className="table-primary table-hover">
+      <Table className="table table-hover table-striped">
         <thead className="thead-dark">
           <tr>
             <th>Employee ID</th>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ReimbursementInterface } from "../Interfaces/ReimbursementInterface";
 import { User } from "../Interfaces/UserInterface";
 import { toast } from "react-toastify";
+import { BASE_URL } from "../Utils/Config";
 
 interface Props {
   user: User;
@@ -37,9 +38,9 @@ function UpdateReimbursement({
   const handleSave = () => {
     const fetchData = async () => {
       console.log("Updated User Data:", formData);
-      const BASE_URL = "http://127.0.0.1:8080/reimbursement";
+
       try {
-        const response = await fetch(BASE_URL, {
+        const response = await fetch(BASE_URL + "/reimbursement", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
