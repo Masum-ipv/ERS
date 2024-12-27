@@ -44,8 +44,8 @@ public class ReimbursementController {
     }
 
     @PostMapping
-    public ResponseEntity<?> insertReimbursement(@Valid @RequestBody ReimbursementDTO reimbursementDTO) {
-        return reimbursementService.insertReimbursement(reimbursementDTO);
+    public ResponseEntity<?> insertReimbursement(@Valid @RequestBody Reimbursement reimbursement) {
+        return reimbursementService.insertReimbursement(reimbursement);
     }
 
     @PutMapping("")

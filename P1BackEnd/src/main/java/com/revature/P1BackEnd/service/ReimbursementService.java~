@@ -105,21 +105,18 @@ public class ReimbursementService {
     public ResponseEntity<?> getPendingReimbursementsByEmployee(Status status, String employeeId) {
         logger.info("Retrieving pending reimbursements for employee with id: {}", employeeId);
         List<Reimbursement> reimbursements = reimbursementRepository.findByEmployee_EmployeeIdAndStatus(employeeId, status);
-        reimbursements = reimbursements.stream().map(this::getReimbursementWithOutPassword).collect(toList());
         return ResponseEntity.ok(reimbursements);
     }
 
     public ResponseEntity<?> getPendingReimbursements() {
         logger.info("Retrieving all pending reimbursements");
         List<Reimbursement> reimbursements = reimbursementRepository.findByStatus(Status.PENDING);
-        reimbursements = reimbursements.stream().map(this::getReimbursementWithOutPassword).collect(toList());
         return ResponseEntity.ok(reimbursements);
     }
 
     public ResponseEntity<?> getReimbursementsByEmployee(String employeeId) {
         logger.info("Retrieving reimbursements for employee with id: {}", employeeId);
         List<Reimbursement> reimbursements = reimbursementRepository.findByEmployee_EmployeeId(employeeId);
-        reimbursements = reimbursements.stream().map(this::getReimbursementWithOutPassword).collect(toList());
         return ResponseEntity.ok(reimbursements);
     }
 }

@@ -1,6 +1,7 @@
 package com.revature.P1BackEnd.controller;
 
 import com.revature.P1BackEnd.model.Employee;
+import com.revature.P1BackEnd.model.dto.EmployeeDTO;
 import com.revature.P1BackEnd.model.dto.LoginRequestDTO;
 import com.revature.P1BackEnd.service.EmployeeService;
 import jakarta.validation.Valid;
@@ -38,13 +39,13 @@ public class EmployeeController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO employee) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO employee) {
         return employeeService.login(employee);
     }
 
     @PutMapping
-    public ResponseEntity<?> updateEmployee(@Valid @RequestBody Employee employee) {
-        return employeeService.updateEmployee(employee);
+    public ResponseEntity<?> updateEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
+        return employeeService.updateEmployee(employeeDTO);
     }
 
     @DeleteMapping("/{id}")

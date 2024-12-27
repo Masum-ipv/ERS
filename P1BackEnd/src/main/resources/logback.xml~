@@ -14,7 +14,7 @@
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- Log file pattern for daily rolling -->
-            <fileNamePattern>logs/app-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/app-%d{yyyy-MM-dd_HH-mm}.log</fileNamePattern>
 
             <!-- Keep logs for 30 days -->
             <maxHistory>30</maxHistory>

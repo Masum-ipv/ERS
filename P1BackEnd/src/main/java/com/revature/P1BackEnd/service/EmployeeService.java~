@@ -39,7 +39,7 @@ public class EmployeeService {
         EmployeeDTO employeeDTO = new EmployeeDTO(
                 employee.get().getEmployeeId(), employee.get().getName(),
                 employee.get().getEmail(), employee.get().getRole());
-        return ResponseEntity.ok(employeeDTO);
+        return ResponseEntity.ok(employee.get());
     }
 
 
