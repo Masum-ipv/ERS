@@ -1,5 +1,6 @@
 package com.revature.P1BackEnd.service;
 
+import com.revature.P1BackEnd.model.ApiResponse;
 import com.revature.P1BackEnd.model.Employee;
 import com.revature.P1BackEnd.model.Reimbursement;
 import com.revature.P1BackEnd.model.dto.EmployeeDTO;
@@ -29,7 +30,8 @@ public class EmployeeService {
         List<EmployeeDTO> employeeDTOs = employees.stream().map(employee -> new EmployeeDTO(
                 employee.getEmployeeId(), employee.getName(),
                 employee.getEmail(), employee.getRole())).toList();
-        return ResponseEntity.ok(employeeDTOs);
+        ApiResponse response = new ApiResponse("Employees retrieved successfully", employeeDTOs);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> getEmployeeById(String id) {
@@ -41,24 +43,28 @@ public class EmployeeService {
         EmployeeDTO employeeDTO = new EmployeeDTO(
                 employee.get().getEmployeeId(), employee.get().getName(),
                 employee.get().getEmail(), employee.get().getRole());
-        return ResponseEntity.ok(employeeDTO);
+        ApiResponse response = new ApiResponse("Employee retrieved successfully", employeeDTO);
+        return ResponseEntity.ok(response);
     }
 
 
     public ResponseEntity<?> getAllReimbursementsByEmployee(String employeeId) {
         logger.info("Retrieving reimbursements for employee with id: {}", employeeId);
         List<Reimbursement> reimbursements = employeeRepository.findByEmployeeId(employeeId);
-        return ResponseEntity.ok(reimbursements);
+        ApiResponse response = new ApiResponse("Reimbursements retrieved successfully", reimbursements);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> insertEmployee(Employee employee) {
         logger.info("Inserting employee: {}", employee.getName());
         employee.setEmployeeId(UUID.randomUUID().toString());
         if (employeeRepository.existsByEmail(employee.getEmail())) {
-            throw new IllegalArgumentException("Employee already exists with email: " + employee.getEmail());
+            throw new RuntimeException("Employee already exists with email: " + employee.getEmail());
         }
         Employee savedEmployee = employeeRepository.save(employee);
-        return ResponseEntity.ok(savedEmployee);
+        savedEmployee.setPassword(null);
+        ApiResponse response = new ApiResponse("Employee inserted successfully", savedEmployee);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> updateEmployee(EmployeeDTO employeeDTO) {
@@ -72,9 +78,10 @@ public class EmployeeService {
         employee.get().setName(employeeDTO.name());
         employee.get().setEmail(employeeDTO.email());
         employee.get().setRole(employeeDTO.role());
-
         employeeRepository.save(employee.get());
-        return ResponseEntity.ok(employeeDTO);
+
+        ApiResponse response = new ApiResponse("Employee updated successfully", employeeDTO);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> deleteEmployee(String id) {
@@ -83,18 +90,19 @@ public class EmployeeService {
             throw new RuntimeException("Employee not found with id: " + id);
         }
         employeeRepository.deleteById(id);
-        return ResponseEntity.ok("Employee deleted successfully");
+        ApiResponse response = new ApiResponse("Employee deleted successfully", null);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> login(LoginRequestDTO employee) {
         logger.info("Logging in employee: {}", employee.email());
 
-        Employee existingEmployee = employeeRepository.findByEmail(employee.email());
-
-        if (existingEmployee != null && existingEmployee.getPassword().equals(employee.password())) {
-            return ResponseEntity.ok(existingEmployee);
-        } else {
+        Employee existingEmployee = employeeRepository.findByEmailAndPassword(employee.email(), employee.password());
+        if (existingEmployee == null) {
             throw new RuntimeException("Invalid email or password");
         }
+        existingEmployee.setPassword(null);
+        ApiResponse response = new ApiResponse("Employee logged in successfully", existingEmployee);
+        return ResponseEntity.ok(response);
     }
 }

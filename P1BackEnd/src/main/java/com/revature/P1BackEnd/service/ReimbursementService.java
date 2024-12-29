@@ -1,5 +1,6 @@
 package com.revature.P1BackEnd.service;
 
+import com.revature.P1BackEnd.model.ApiResponse;
 import com.revature.P1BackEnd.model.Employee;
 import com.revature.P1BackEnd.model.Reimbursement;
 import com.revature.P1BackEnd.model.Status;
@@ -32,18 +33,9 @@ public class ReimbursementService {
         List<Reimbursement> reimbursements = reimbursementRepository.findAll();
         logger.info("Retrieving all reimbursements, Reimbursement count: {}", reimbursements.size());
         reimbursements = reimbursements.stream().map(this::getReimbursementWithOutPassword).collect(toList());
-        return ResponseEntity.ok(reimbursements);
-    }
 
-    private Reimbursement getReimbursementWithOutPassword(Reimbursement reimbursement) {
-        reimbursement.getEmployee().setPassword(null);
-        return new Reimbursement(
-                reimbursement.getReimbursementId(),
-                reimbursement.getEmployee(),
-                reimbursement.getDescription(),
-                reimbursement.getAmount(),
-                reimbursement.getStatus()
-        );
+        ApiResponse response = new ApiResponse("Reimbursements retrieved successfully", reimbursements);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> getReimbursementById(String id) {
@@ -53,7 +45,8 @@ public class ReimbursementService {
             throw new RuntimeException("Reimbursement not found with id: " + id);
         }
         reimbursement = Optional.of(getReimbursementWithOutPassword(reimbursement.get()));
-        return ResponseEntity.ok(reimbursement.get());
+        ApiResponse response = new ApiResponse("Reimbursement retrieved successfully", reimbursement.get());
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> insertReimbursement(ReimbursementDTO reimbursementDTO) {
@@ -76,8 +69,9 @@ public class ReimbursementService {
         );
         Reimbursement savedReimbursement = reimbursementRepository.save(reimbursement);
         Reimbursement updatedReimbursement = getReimbursementWithOutPassword(savedReimbursement);
+        ApiResponse response = new ApiResponse("Reimbursement inserted successfully", updatedReimbursement);
 
-        return ResponseEntity.ok(updatedReimbursement);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> updateReimbursement(Reimbursement reimbursement) {
@@ -90,7 +84,8 @@ public class ReimbursementService {
         Reimbursement savedReimbursement = reimbursementRepository.save(reimbursement);
         Reimbursement updatedReimbursement = getReimbursementWithOutPassword(savedReimbursement);
 
-        return ResponseEntity.ok(updatedReimbursement);
+        ApiResponse response = new ApiResponse("Reimbursement updated successfully", updatedReimbursement);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> deleteReimbursement(String id) {
@@ -99,27 +94,42 @@ public class ReimbursementService {
             throw new RuntimeException("Reimbursement not found with id: " + id);
         }
         reimbursementRepository.deleteById(id);
-        return ResponseEntity.ok("Reimbursement deleted successfully");
+        ApiResponse response = new ApiResponse("Reimbursement deleted successfully", null);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> getPendingReimbursementsByEmployee(Status status, String employeeId) {
         logger.info("Retrieving pending reimbursements for employee with id: {}", employeeId);
         List<Reimbursement> reimbursements = reimbursementRepository.findByEmployee_EmployeeIdAndStatus(employeeId, status);
         reimbursements = reimbursements.stream().map(this::getReimbursementWithOutPassword).collect(toList());
-        return ResponseEntity.ok(reimbursements);
+        ApiResponse response = new ApiResponse("Reimbursements retrieved successfully", reimbursements);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> getPendingReimbursements() {
         logger.info("Retrieving all pending reimbursements");
         List<Reimbursement> reimbursements = reimbursementRepository.findByStatus(Status.PENDING);
         reimbursements = reimbursements.stream().map(this::getReimbursementWithOutPassword).collect(toList());
-        return ResponseEntity.ok(reimbursements);
+        ApiResponse response = new ApiResponse("Reimbursements retrieved successfully", reimbursements);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> getReimbursementsByEmployee(String employeeId) {
         logger.info("Retrieving reimbursements for employee with id: {}", employeeId);
         List<Reimbursement> reimbursements = reimbursementRepository.findByEmployee_EmployeeId(employeeId);
         reimbursements = reimbursements.stream().map(this::getReimbursementWithOutPassword).collect(toList());
-        return ResponseEntity.ok(reimbursements);
+        ApiResponse response = new ApiResponse("Reimbursements retrieved successfully", reimbursements);
+        return ResponseEntity.ok(response);
+    }
+
+    private Reimbursement getReimbursementWithOutPassword(Reimbursement reimbursement) {
+        reimbursement.getEmployee().setPassword(null);
+        return new Reimbursement(
+                reimbursement.getReimbursementId(),
+                reimbursement.getEmployee(),
+                reimbursement.getDescription(),
+                reimbursement.getAmount(),
+                reimbursement.getStatus()
+        );
     }
 }
