@@ -29,7 +29,6 @@ public class Employee {
     private String name;
     @NotEmpty(message = "Email is required")
     private String email;
-    @NotEmpty(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)

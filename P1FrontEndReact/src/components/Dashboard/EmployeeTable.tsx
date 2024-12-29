@@ -18,8 +18,8 @@ function DataTable() {
     setIsLoading(true);
     try {
       const response = await fetch(BASE_URL + "/employee");
-      const data = await response.json();
-      setEmployees(data);
+      const jsonResponse = await response.json();
+      setEmployees(jsonResponse.data);
       setError("");
     } catch (error) {
       setError((error as any).message || "An error occurred");
@@ -31,7 +31,7 @@ function DataTable() {
   const deleteEmployee = async (employeeId: string) => {
     setIsLoading(true);
     try {
-      await fetch(BASE_URL + "/" + employeeId, {
+      await fetch(BASE_URL + "/employee/" + employeeId, {
         method: "DELETE",
       });
       fetchEmployees();

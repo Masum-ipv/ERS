@@ -2,6 +2,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { BASE_URL } from "../Utils/Config";
+import displayErrors from "../Utils/FieldErrors";
 
 interface Props {
   userName: string;
@@ -45,7 +46,11 @@ function AddReimbursement({ userName, userId, showModal, handleClose }: Props) {
           toast.success("Reimbursement added successfully");
           handleClose(); // Close modal after saving
         } else {
-          toast.error(data.message);
+          if (data.fieldErrors == null) {
+            toast.error(data.message);
+          } else {
+            displayErrors(data);
+          }
         }
         console.log(data);
       } catch (error) {

@@ -40,8 +40,8 @@ function DataTable({ user, refreshKey }: UserProps) {
     setIsLoading(true);
     try {
       const response = await fetch(BASE_URL + "/reimbursement" + END_POINT);
-      const data = await response.json();
-      setReimbursements(data);
+      const jsonResponse = await response.json();
+      setReimbursements(jsonResponse.data);
       setError("");
     } catch (error) {
       setError((error as any).message || "An error occurred");
@@ -53,7 +53,7 @@ function DataTable({ user, refreshKey }: UserProps) {
   const deleteReimbursement = async (id: string) => {
     setIsLoading(true);
     try {
-      await fetch(BASE_URL + "/" + id, {
+      await fetch(BASE_URL + "/reimbursement/" + id, {
         method: "DELETE",
       });
       fetchReimbursements();

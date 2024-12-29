@@ -5,6 +5,7 @@ import { ReimbursementInterface } from "../Interfaces/ReimbursementInterface";
 import { User } from "../Interfaces/UserInterface";
 import { toast } from "react-toastify";
 import { BASE_URL } from "../Utils/Config";
+import displayErrors from "../Utils/FieldErrors";
 
 interface Props {
   user: User;
@@ -57,7 +58,11 @@ function UpdateReimbursement({
           toast.success("Reimbursement updated successfully");
           handleClose(); // Close modal after saving
         } else {
-          toast.error(data.message);
+          if (data.fieldErrors == null) {
+            toast.error(data.message);
+          } else {
+            displayErrors(data);
+          }
         }
         console.log(data);
       } catch (error) {

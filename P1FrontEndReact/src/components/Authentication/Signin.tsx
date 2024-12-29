@@ -6,6 +6,7 @@ import Loading from "../Utils/Loading";
 import SomethingWentWrong from "../Utils/SomethingWentWrong";
 import InputField from "../Utils/InputField";
 import { BASE_URL } from "../Utils/Config";
+import displayErrors from "../Utils/FieldErrors";
 function Authentication() {
   const [registeredAccount, setRegisteredAccount] = useState("Sign In");
   const [formData, setFormData] = useState({
@@ -60,24 +61,28 @@ function Authentication() {
                   password: formData.password,
                 }),
         });
-        const data = await response.json();
+        const jsonResponse = await response.json();
         if (response.ok) {
-          console.log(data);
+          console.log(jsonResponse.data);
           if (registeredAccount === "Sign Up") {
             toast.success("User registered successfully");
             setRegisteredAccount("Sign In");
             clearFormData();
           } else {
             toast.success("User logged in successfully");
-            if (data.role === "EMPLOYEE") {
-              navigate("/employee", { state: { user: data } });
+            if (jsonResponse.data.role === "EMPLOYEE") {
+              navigate("/employee", { state: { user: jsonResponse.data } });
             } else {
-              navigate("/manager", { state: { user: data } });
+              navigate("/manager", { state: { user: jsonResponse.data } });
             }
           }
         } else {
-          toast.error(data.message);
-          console.log(data);
+          if (jsonResponse.fieldErrors == null) {
+            toast.error(jsonResponse.message);
+          } else {
+            displayErrors(jsonResponse);
+          }
+          console.log(jsonResponse);
         }
       } catch (error) {
         setError(error as any);
