@@ -4,6 +4,8 @@ import com.revature.P1BackEnd.model.Role;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+import java.io.Serializable;
+
 public record EmployeeDTO(
         @NotEmpty(message = "Employee ID is required")
         String employeeId,

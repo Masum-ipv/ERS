@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -19,7 +20,6 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 public class Employee {
-
     @Id
     private String employeeId;
     @NotEmpty(message = "Name is required")

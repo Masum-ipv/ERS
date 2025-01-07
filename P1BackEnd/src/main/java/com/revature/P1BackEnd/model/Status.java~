@@ -1,0 +1,10 @@
+package com.revature.P1BackEnd.model;
+
+import java.io.Serializable;
+
+public enum Status implements Serializable {
+    PENDING,
+    APPROVED,
+    DENIED;
+    private static final long serialVersionUID = 1L; // Recommended for Serializable classes for Redis  Caching
+}

@@ -5,6 +5,7 @@ import com.revature.P1BackEnd.model.dto.EmployeeDTO;
 import com.revature.P1BackEnd.model.dto.LoginRequestDTO;
 import com.revature.P1BackEnd.service.EmployeeService;
 import jakarta.validation.Valid;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,13 +45,15 @@ public class EmployeeController {
     }
 
     @PutMapping
+    @CacheEvict(value = "employees", key = "#employeeDTO.employeeId")
     public ResponseEntity<?> updateEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
-        return ResponseEntity.ok(employeeService.updateEmployee(employeeDTO));
+        return employeeService.updateEmployee(employeeDTO);
     }
 
     @DeleteMapping("/{id}")
+    @CacheEvict(value = "employees", key = "#id")
     public ResponseEntity<?> deleteEmployee(@PathVariable String id) {
-        return ResponseEntity.ok(employeeService.deleteEmployee(id));
+        return employeeService.deleteEmployee(id);
     }
 
 

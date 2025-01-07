@@ -11,8 +11,7 @@ public record ApiResponse (
         String message,
         Object data,
         List<FieldError> fieldErrors
-) implements Serializable {
-    private static final long serialVersionUID = 1L; // Recommended for Serializable classes for Redis  Caching
+) {
     public ApiResponse(String status, int code, String message, Object data) {
         this(status, code, message, data, null);
     }

@@ -9,6 +9,9 @@ import com.revature.P1BackEnd.model.mapper.EmployeeDtoMapper;
 import com.revature.P1BackEnd.repository.EmployeeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -27,17 +30,19 @@ public class EmployeeService {
         this.EmployeeDtoMapper = employeeDtoMapper;
     }
 
-    public ResponseEntity<?> getEmployee() {
+    @Cacheable(value = "employees")
+    public ApiResponse getAllEmployee() {
         List<Employee> employees = employeeRepository.findAll();
         logger.info("Retrieving all employees, Employee count: {}", employees.size());
         List<EmployeeDTO> employeeDTOs = employees.stream().map(employee -> new EmployeeDTO(
                 employee.getEmployeeId(), employee.getName(),
                 employee.getEmail(), employee.getRole())).toList();
         ApiResponse response = new ApiResponse("Employees retrieved successfully", employeeDTOs);
-        return ResponseEntity.ok(response);
+        return response;
     }
 
-    public ResponseEntity<?> getEmployeeById(String id) {
+    @Cacheable(value = "employeesById", key = "#id")
+    public ApiResponse getEmployeeById(String id) {
         logger.info("Retrieving employee with id: {}", id);
         Optional<Employee> employee = employeeRepository.findById(id);
         if (employee.isEmpty()) {
@@ -46,7 +51,7 @@ public class EmployeeService {
         EmployeeDTO employeeDTO = EmployeeDtoMapper.entityToDto(employee.get());
         ApiResponse response = new ApiResponse("Employee retrieved successfully", employeeDTO);
 
-        return ResponseEntity.ok(response);
+        return response;
     }
 
 
@@ -57,7 +62,8 @@ public class EmployeeService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<?> insertEmployee(Employee employee) {
+    @CacheEvict(value = "employees", allEntries = true)
+    public ApiResponse insertEmployee(Employee employee) {
         logger.info("Inserting employee: {}", employee.getName());
         employee.setEmployeeId(UUID.randomUUID().toString());
         if (employeeRepository.existsByEmail(employee.getEmail())) {
@@ -66,10 +72,14 @@ public class EmployeeService {
         Employee savedEmployee = employeeRepository.save(employee);
         savedEmployee.setPassword(null);
         ApiResponse response = new ApiResponse("Employee inserted successfully", savedEmployee);
-        return ResponseEntity.ok(response);
+        return response;
     }
 
-    public ResponseEntity<?> updateEmployee(EmployeeDTO employeeDTO) {
+    @Caching(evict = {
+            @CacheEvict(value = "employees", allEntries = true),
+            @CacheEvict(value = "employeesById", key = "#employeeDTO.employeeId")
+    })
+    public ApiResponse updateEmployee(EmployeeDTO employeeDTO) {
         logger.info("Updating employee: {}", employeeDTO.name());
 
         Optional<Employee> employee = employeeRepository.findById(employeeDTO.employeeId());
@@ -83,17 +93,21 @@ public class EmployeeService {
         employeeRepository.save(employee.get());
 
         ApiResponse response = new ApiResponse("Employee updated successfully", employeeDTO);
-        return ResponseEntity.ok(response);
+        return response;
     }
 
-    public ResponseEntity<?> deleteEmployee(String id) {
+    @Caching(evict = {
+            @CacheEvict(value = "employees", allEntries = true),
+            @CacheEvict(value = "employeesById", key = "#id")
+    })
+    public ApiResponse deleteEmployee(String id) {
         logger.info("Deleting employee with id: {}", id);
         if (!employeeRepository.existsById(id)) {
             throw new RuntimeException("Employee not found with id: " + id);
         }
         employeeRepository.deleteById(id);
         ApiResponse response = new ApiResponse("Employee deleted successfully", null);
-        return ResponseEntity.ok(response);
+        return response;
     }
 
     public ResponseEntity<?> login(LoginRequestDTO employee) {
