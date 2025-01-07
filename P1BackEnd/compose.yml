@@ -2,11 +2,12 @@ services:
   postgres:
     image: 'postgres:latest'
     environment:
-      - 'POSTGRES_DB=ers'
+      - 'POSTGRES_DB=postgres'
       - 'POSTGRES_USER=postgres'
       - 'POSTGRES_PASSWORD=password'
     ports:
       - '5432:5432'
+    restart: no
   redis:
     image: redis:latest
     container_name: redis

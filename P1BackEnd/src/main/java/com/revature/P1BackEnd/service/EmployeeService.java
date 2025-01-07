@@ -9,6 +9,10 @@ import com.revature.P1BackEnd.model.mapper.EmployeeDtoMapper;
 import com.revature.P1BackEnd.repository.EmployeeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -23,11 +27,16 @@ import java.util.UUID;
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final EmployeeDtoMapper EmployeeDtoMapper;
+    private final RabbitTemplate rabbitTemplate;
+    private final String exchangeName;
     private final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
-    public EmployeeService(EmployeeRepository employeeRepository, EmployeeDtoMapper employeeDtoMapper) {
+    public EmployeeService(EmployeeRepository employeeRepository, EmployeeDtoMapper employeeDtoMapper,
+                           RabbitTemplate rabbitTemplate, @Value("${rabbitmq.exchange.name}") String exchangeName) {
         this.employeeRepository = employeeRepository;
         this.EmployeeDtoMapper = employeeDtoMapper;
+        this.rabbitTemplate = rabbitTemplate;
+        this.exchangeName = exchangeName;
     }
 
     @Cacheable(value = "employees")
@@ -63,7 +72,7 @@ public class EmployeeService {
     }
 
     @CacheEvict(value = "employees", allEntries = true)
-    public ApiResponse insertEmployee(Employee employee) {
+    public ApiResponse registerEmployee(Employee employee) {
         logger.info("Inserting employee: {}", employee.getName());
         employee.setEmployeeId(UUID.randomUUID().toString());
         if (employeeRepository.existsByEmail(employee.getEmail())) {
@@ -72,6 +81,21 @@ public class EmployeeService {
         Employee savedEmployee = employeeRepository.save(employee);
         savedEmployee.setPassword(null);
         ApiResponse response = new ApiResponse("Employee inserted successfully", savedEmployee);
+
+        // Set the message properties
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setHeader("email-address", savedEmployee.getEmail());
+        messageProperties.setHeader("phone-number", "+1234567890");
+
+        // Create a message
+        String messageBody = "Welcome to the ERS, " + savedEmployee.getName() + ", your account has been successfully registered";
+        Message message = new Message(messageBody.getBytes(), messageProperties);
+
+        // Publish the message
+        rabbitTemplate.convertAndSend(exchangeName, "registration.email", message);
+        rabbitTemplate.convertAndSend(exchangeName, "registration.sms", message);
+
+
         return response;
     }
 

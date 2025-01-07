@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
-// TODO: Message broker, JWT token and Role Based Access Control (RBAC), and
+// TODO: JWT token and Role Based Access Control (RBAC), and UUId for user id
 //  Logout functionality with JWT token blacklisting
 // TODO: Add Readme file mentioning Backend and Frontend technologies used, and how to run the application(e.g. lombok: Used to store log file )
 // TODO: Use Axio, Cokkies to send JWT

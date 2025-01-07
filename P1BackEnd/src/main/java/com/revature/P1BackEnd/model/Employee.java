@@ -8,7 +8,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,7 +22,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @Entity
-public class Employee {
+public class Employee implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     private String employeeId;
     @NotEmpty(message = "Name is required")

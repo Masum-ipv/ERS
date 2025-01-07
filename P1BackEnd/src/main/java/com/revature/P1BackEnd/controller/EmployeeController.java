@@ -35,7 +35,7 @@ public class EmployeeController {
 
     @PostMapping
     public ResponseEntity<?> insertEmployee(@Valid @RequestBody Employee employee) {
-        return ResponseEntity.ok(employeeService.insertEmployee(employee));
+        return ResponseEntity.ok(employeeService.registerEmployee(employee));
     }
 
     @PostMapping("/login")

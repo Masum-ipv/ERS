@@ -35,8 +35,7 @@ prevent the user from invoking unauthorized functionalities or entering invalid 
 ## How to Run
 
 - Clone the repository
-- Open Docker Desktop
-- Run the `docker-compose.yml` file
+- Open Docker Desktop Application
 - `cd` into `P1Backend` and run spring project from IDE
 - `cd` into `P1FrontEndReact` and run react project from terminal using `npm run dev`
 - Open browser and navigate to `localhost:5173`
