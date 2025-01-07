@@ -44,8 +44,11 @@ public class EmployeeService {
             throw new RuntimeException("Employee not found with id: " + id);
         }
         EmployeeDTO employeeDTO = EmployeeDtoMapper.entityToDto(employee.get());
-        ApiResponse response = new ApiResponse("Employee retrieved successfully", employeeDTO);
 
+        EmployeeDTO employeeDTO = new EmployeeDTO(
+                employee.get().getEmployeeId(), employee.get().getName(),
+                employee.get().getEmail(), employee.get().getRole());
+        ApiResponse response = new ApiResponse("Employee retrieved successfully", employeeDTO);
         return ResponseEntity.ok(response);
     }
 

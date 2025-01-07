@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 // TODO: Add caching, message broker, JWT token and Role Based Access Control (RBAC), and
 //  Logout functionality with JWT token blacklisting
 // TODO: Add Readme file mentioning Backend and Frontend technologies used, and how to run the application(e.g. lombok: Used to store log file )
-// TODO: Use Axio, Cokkies to send JWT
+// TODO: Add DTOMAPPER, Use Axio, Cokkies to send JWT
 @SpringBootApplication
 public class P1BackEndApplication {
 
