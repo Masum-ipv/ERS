@@ -1,4 +1,0 @@
-package com.revature.P1BackEnd.utils;
-
-public class JwtTokenUtils {
-}

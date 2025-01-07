@@ -44,7 +44,7 @@ prevent the user from invoking unauthorized functionalities or entering invalid 
 
 #### How to view postgreSQL data
 
-- User `DBeaver` as a database viewer client
+- `DBeaver` as a database viewer client
 - Connect to the database using the following credentials:
     - URL: `jdbc:postgresql://localhost:5432/postgres`
     - Username: `postgres`
@@ -52,7 +52,7 @@ prevent the user from invoking unauthorized functionalities or entering invalid 
 
 #### How to view RabbitMQ data
 
-- User `RabbitMQ` as a queue viewer client
+- `RabbitMQ` as a queue viewer client
 - Connect to the queue using the following credentials:
     - URL: `http://localhost:15672`
     - Username: `username`
@@ -60,7 +60,7 @@ prevent the user from invoking unauthorized functionalities or entering invalid 
 
 #### How to view Redis data
 
-- User `RedisInsight` as a database viewer client
+- `RedisInsight` as a database viewer client
 - Connect to the database using the following credentials:
     - URL: `http://localhost:8001`
     - Host: `redis`
