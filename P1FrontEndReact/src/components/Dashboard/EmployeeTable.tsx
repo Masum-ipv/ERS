@@ -49,7 +49,7 @@ function DataTable() {
       ? (employee.role = "MANAGER")
       : (employee.role = "EMPLOYEE");
     try {
-      await fetch(BASE_URL, {
+      await fetch(BASE_URL + "/employee", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
