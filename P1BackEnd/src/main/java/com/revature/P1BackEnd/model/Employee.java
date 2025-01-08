@@ -12,8 +12,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -22,7 +25,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @Entity
-public class Employee implements Serializable {
+public class Employee implements Serializable, UserDetails {
     private static final long serialVersionUID = 1L;
     @Id
     private String employeeId;
@@ -37,4 +40,14 @@ public class Employee implements Serializable {
     private List<Reimbursement> reimbursements;
     @NotNull(message = "Role is required")
     private Role role;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        return null;
+    }
 }

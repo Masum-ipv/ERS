@@ -7,6 +7,7 @@ import com.revature.P1BackEnd.model.dto.EmployeeDTO;
 import com.revature.P1BackEnd.model.dto.LoginRequestDTO;
 import com.revature.P1BackEnd.model.mapper.EmployeeDtoMapper;
 import com.revature.P1BackEnd.repository.EmployeeRepository;
+import com.revature.P1BackEnd.utils.JwtUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -17,24 +18,39 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class EmployeeService {
+public class EmployeeService{
     private final EmployeeRepository employeeRepository;
     private final EmployeeDtoMapper EmployeeDtoMapper;
+    private final JwtUtils jwtUtils;
+    private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
     private final RabbitTemplate rabbitTemplate;
     private final String exchangeName;
     private final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
     public EmployeeService(EmployeeRepository employeeRepository, EmployeeDtoMapper employeeDtoMapper,
+                           JwtUtils jwtUtils, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
                            RabbitTemplate rabbitTemplate, @Value("${rabbitmq.exchange.name}") String exchangeName) {
         this.employeeRepository = employeeRepository;
         this.EmployeeDtoMapper = employeeDtoMapper;
+        this.jwtUtils = jwtUtils;
+        this.authenticationManager = authenticationManager;
+        this.passwordEncoder = passwordEncoder;
         this.rabbitTemplate = rabbitTemplate;
         this.exchangeName = exchangeName;
     }
@@ -78,6 +94,7 @@ public class EmployeeService {
         if (employeeRepository.existsByEmail(employee.getEmail())) {
             throw new RuntimeException("Employee already exists with email: " + employee.getEmail());
         }
+        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
         Employee savedEmployee = employeeRepository.save(employee);
         savedEmployee.setPassword(null);
         ApiResponse response = new ApiResponse("Employee inserted successfully", savedEmployee);
@@ -137,12 +154,22 @@ public class EmployeeService {
     public ResponseEntity<?> login(LoginRequestDTO employee) {
         logger.info("Logging in employee: {}", employee.email());
 
-        Employee existingEmployee = employeeRepository.findByEmailAndPassword(employee.email(), employee.password());
-        if (existingEmployee == null) {
+        Authentication authenticationRequest =
+                UsernamePasswordAuthenticationToken.unauthenticated(employee.email(), employee.password());
+        Authentication authenticationResponse =
+                authenticationManager.authenticate(authenticationRequest);
+        logger.debug("Authentication response: {}", authenticationResponse);
+        if (authenticationResponse == null) {
             throw new RuntimeException("Invalid email or password");
         }
-        existingEmployee.setPassword(null);
-        ApiResponse response = new ApiResponse("Employee logged in successfully", existingEmployee);
+
+        final Employee loggedInUser = (Employee) authenticationResponse.getPrincipal();
+        final String token = jwtUtils.generateJwtToken(loggedInUser.getName());
+
+        logger.debug("Logged in user: {} with token: {}", loggedInUser.getName(), token);
+
+        ApiResponse response = new ApiResponse("Employee logged in successfully", Map.of(
+                "userId", loggedInUser.getEmployeeId(), "token", token));
         return ResponseEntity.ok(response);
     }
 }
