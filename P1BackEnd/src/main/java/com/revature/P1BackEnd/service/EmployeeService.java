@@ -21,9 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +30,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class EmployeeService{
+public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final EmployeeDtoMapper EmployeeDtoMapper;
     private final JwtUtils jwtUtils;
@@ -164,7 +161,11 @@ public class EmployeeService{
         }
 
         final Employee loggedInUser = (Employee) authenticationResponse.getPrincipal();
-        final String token = jwtUtils.generateJwtToken(loggedInUser.getName());
+
+        // Extract roles from the authenticated user
+        String role = loggedInUser.getRole().name();
+
+        final String token = jwtUtils.generateJwtToken(loggedInUser.getName(), role);
 
         logger.debug("Logged in user: {} with token: {}", loggedInUser.getName(), token);
 

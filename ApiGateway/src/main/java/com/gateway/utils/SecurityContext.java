@@ -1,5 +1,6 @@
 package com.gateway.utils;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -11,6 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.stereotype.Component;
@@ -18,6 +22,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.security.Key;
+import java.util.List;
 
 @Component
 public class SecurityContext implements ServerSecurityContextRepository {
@@ -33,6 +38,16 @@ public class SecurityContext implements ServerSecurityContextRepository {
                 .build()
                 .parseClaimsJws(token)
                 .getBody().getSubject();
+    }
+
+    // Extract roles from JWT token
+    public String extractRolesFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("role").toString();
     }
 
     public Boolean validateToken(String authToken) {
@@ -78,8 +93,13 @@ public class SecurityContext implements ServerSecurityContextRepository {
                 // Validate the JWT token
                 if (validateToken(token)) {
                     String username = getUserNameFromToken(token);
+                    String role = extractRolesFromToken(token);
+                    logger.debug("Role: {}", role);
+                    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                    logger.debug("Authorities: {}", authorities.getFirst().getAuthority());
+
                     Authentication authentication =
-                            new UsernamePasswordAuthenticationToken(username, token, null);
+                            new UsernamePasswordAuthenticationToken(username, token, authorities);
                     return Mono.just(new SecurityContextImpl(authentication));
                 }
             } catch (Exception e) {
