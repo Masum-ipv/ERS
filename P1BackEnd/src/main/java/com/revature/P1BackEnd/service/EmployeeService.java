@@ -149,7 +149,7 @@ public class EmployeeService {
     }
 
     public ResponseEntity<?> login(LoginRequestDTO employee) {
-        logger.info("Logging in employee: {}", employee.email());
+        logger.info("Logging in as: {}", employee.email());
 
         Authentication authenticationRequest =
                 UsernamePasswordAuthenticationToken.unauthenticated(employee.email(), employee.password());
@@ -165,12 +165,13 @@ public class EmployeeService {
         // Extract roles from the authenticated user
         String role = loggedInUser.getRole().name();
 
-        final String token = jwtUtils.generateJwtToken(loggedInUser.getName(), role);
+        final String token = jwtUtils.generateJwtToken(
+                loggedInUser.getName(), role, loggedInUser.getEmployeeId());
 
         logger.debug("Logged in user: {} with token: {}", loggedInUser.getName(), token);
 
-        ApiResponse response = new ApiResponse("Employee logged in successfully", Map.of(
-                "userId", loggedInUser.getEmployeeId(), "token", token));
+        ApiResponse response = new ApiResponse("Employee logged in successfully",
+                Map.of("token", token));
         return ResponseEntity.ok(response);
     }
 }

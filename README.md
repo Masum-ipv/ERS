@@ -36,6 +36,7 @@ prevent the user from invoking unauthorized functionalities or entering invalid 
 
 - Clone the repository
 - Open Docker Desktop Application
+- `cd` into `APIGateWay` and run spring project from IDE
 - `cd` into `P1Backend` and run spring project from IDE
 - `cd` into `P1FrontEndReact` and run react project from terminal using `npm run dev`
 - Open browser and navigate to `localhost:5173`

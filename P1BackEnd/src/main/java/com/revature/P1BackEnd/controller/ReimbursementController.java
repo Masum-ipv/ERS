@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/reimbursement")
 public class ReimbursementController {
     private final ReimbursementService reimbursementService;

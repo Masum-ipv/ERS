@@ -5,8 +5,11 @@ import { Button, Form } from "react-bootstrap";
 import Loading from "../Utils/Loading";
 import SomethingWentWrong from "../Utils/SomethingWentWrong";
 import InputField from "../Utils/InputField";
-import { BASE_URL } from "../Utils/Config";
 import displayErrors from "../Utils/FieldErrors";
+import { useAuth } from "../Utils/AuthContext";
+import axiosInstance from "../Utils/AxioInstance";
+import { jwtDecode } from "jwt-decode";
+
 function Authentication() {
   const [registeredAccount, setRegisteredAccount] = useState("Sign In");
   const [formData, setFormData] = useState({
@@ -16,8 +19,8 @@ function Authentication() {
     role: "EMPLOYEE",
   });
 
-  const [error, setError] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,63 +41,68 @@ function Authentication() {
   };
 
   const handleSubmit = () => {
-    const fetchData = async () => {
-      let END_POINT =
-        registeredAccount === "Sign Up" ? "/employee" : "/employee/login";
-      setIsLoading(true);
-      try {
-        const response = await fetch(BASE_URL + END_POINT, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body:
-            registeredAccount === "Sign Up"
-              ? JSON.stringify({
-                  name: formData.name,
-                  email: formData.email,
-                  password: formData.password,
-                  role: formData.role,
-                })
-              : JSON.stringify({
-                  email: formData.email,
-                  password: formData.password,
-                }),
-        });
-        const jsonResponse = await response.json();
-        if (response.ok) {
-          console.log(jsonResponse.data);
-          if (registeredAccount === "Sign Up") {
-            toast.success("User registered successfully");
-            setRegisteredAccount("Sign In");
-            clearFormData();
-          } else {
-            toast.success("User logged in successfully");
-            if (jsonResponse.data.role === "EMPLOYEE") {
-              navigate("/employee", { state: { user: jsonResponse.data } });
-            } else {
-              navigate("/manager", { state: { user: jsonResponse.data } });
-            }
+    const END_POINT =
+      registeredAccount === "Sign Up"
+        ? "/employee/register"
+        : "/employee/login";
+    const payload =
+      registeredAccount === "Sign Up"
+        ? {
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            role: formData.role,
           }
+        : {
+            email: formData.email,
+            password: formData.password,
+          };
+
+    setIsLoading(true);
+
+    axiosInstance
+      .post(END_POINT, payload)
+      .then((response) => {
+        console.log(response.data);
+        if (registeredAccount === "Sign Up") {
+          toast.success("User registered successfully");
+          setRegisteredAccount("Sign In");
+          clearFormData();
         } else {
+          toast.success("User logged in successfully");
+          console.log(response.data.data.token);
+          login(response.data.data.token); //Save JWT to context and cookies
+
+          // Decode the token immediately
+          const decodedToken: any = jwtDecode(response.data.data.token);
+          console.log("Decoded Token:", decodedToken);
+
+          if (decodedToken.role === "EMPLOYEE") {
+            navigate("/employee");
+          } else {
+            navigate("/manager");
+          }
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          const jsonResponse = error.response.data;
           if (jsonResponse.fieldErrors == null) {
             toast.error(jsonResponse.message);
           } else {
             displayErrors(jsonResponse);
           }
           console.log(jsonResponse);
+        } else {
+          toast.error("Something went wrong");
+          console.error(error);
         }
-      } catch (error) {
-        setError(error as any);
-        console.error(error);
-      } finally {
+      })
+      .finally(() => {
         setIsLoading(false);
-      }
-    };
-    fetchData();
+      });
   };
   if (isLoading) return <Loading />;
-  if (error) return <SomethingWentWrong message={(error as any).message} />;
 
   return (
     <div>
@@ -167,7 +175,9 @@ function Authentication() {
           type="button"
           variant="primary"
           className="w-50"
-          onClick={handleSubmit}
+          onClick={() => {
+            handleSubmit();
+          }}
         >
           Submit
         </Button>

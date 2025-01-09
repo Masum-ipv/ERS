@@ -12,7 +12,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -30,11 +35,12 @@ public class SecurityConfig {
 
 
         return http
+                .cors(httpSecurityCorsConfigure -> httpSecurityCorsConfigure.configurationSource(corsConfigurationSource()))
                 .csrf(ServerHttpSecurity.CsrfSpec::disable) // Disable CSRF for stateless APIs
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers(HttpMethod.POST, "/employee/**").permitAll()  // Public access for /auth endpoints
+                        .pathMatchers( "/employee/login", "/employee/register").permitAll()
                         .pathMatchers(HttpMethod.DELETE, "/employee/**").hasRole("MANAGER")
                         .anyExchange().authenticated()         // Require authentication for other routes
                 )
@@ -91,5 +97,19 @@ public class SecurityConfig {
                         })
                 )
                 .build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        //Make the below setting as * to allow connection from any hos
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowedHeaders(List.of("*"));
+        corsConfiguration.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
+        return source;
     }
 }

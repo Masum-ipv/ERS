@@ -7,6 +7,7 @@ import Authentication from "./components/Authentication/Signin";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AuthProvider } from "./components/Utils/AuthContext";
 
 const router = createBrowserRouter([
   {
@@ -28,15 +29,17 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <div className="App">
-      <h1 className="position-fixed top-0 start-50 translate-middle-x text-center w-100 py-2">
-        Employee Reimbursement System
-      </h1>
-      <StrictMode>
-        <RouterProvider router={router} />
-      </StrictMode>
-      <ToastContainer />
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <h1 className="position-fixed top-0 start-50 translate-middle-x text-center w-100 py-2">
+          Employee Reimbursement System
+        </h1>
+        <StrictMode>
+          <RouterProvider router={router} />
+        </StrictMode>
+        <ToastContainer />
+      </div>
+    </AuthProvider>
   );
 }
 

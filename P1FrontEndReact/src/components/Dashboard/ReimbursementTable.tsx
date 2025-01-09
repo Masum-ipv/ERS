@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
-import { ReimbursementInterface } from "../Interfaces/ReimbursementInterface";
+import { ReimbursementInterface } from "../Utils/Interface";
 import { Button, Container, Table } from "react-bootstrap";
-import { User } from "../Interfaces/UserInterface";
 import UpdateReimbursement from "./UpdateReimbursement";
 import Loading from "../Utils/Loading";
 import SomethingWentWrong from "../Utils/SomethingWentWrong";
-import { BASE_URL } from "../Utils/Config";
+import axiosInstance from "../Utils/AxioInstance";
+import { useAuth } from "../Utils/AuthContext";
 
 interface UserProps {
-  user: User;
   refreshKey: number;
 }
 
-function DataTable({ user, refreshKey }: UserProps) {
+function DataTable({ refreshKey }: UserProps) {
   let END_POINT = "";
   const [reimbersements, setReimbursements] = useState<
     ReimbursementInterface[]
@@ -24,45 +23,50 @@ function DataTable({ user, refreshKey }: UserProps) {
   const [refreshKeyForUpdate, setRefreshKeyForUpdate] = useState(0);
   const [selectedReimbursement, setSelectedReimbursement] =
     useState<ReimbursementInterface>();
+  const { role, userId } = useAuth();
 
   useEffect(() => {
     fetchReimbursements();
   }, [allReimbursement, refreshKey, refreshKeyForUpdate]);
 
-  const fetchReimbursements = async () => {
+  const fetchReimbursements = () => {
     if (allReimbursement) {
-      END_POINT =
-        user.role === "EMPLOYEE" ? "/employee/" + user.employeeId : "";
+      END_POINT = role === "EMPLOYEE" ? "/employee/" + userId : "";
     } else {
-      END_POINT =
-        user.role === "EMPLOYEE" ? "/PENDING/" + user.employeeId : "/PENDING";
+      END_POINT = role === "EMPLOYEE" ? "/PENDING/" + userId : "/PENDING";
     }
     setIsLoading(true);
-    try {
-      const response = await fetch(BASE_URL + "/reimbursement" + END_POINT);
-      const jsonResponse = await response.json();
-      setReimbursements(jsonResponse.data);
-      setError("");
-    } catch (error) {
-      setError((error as any).message || "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
+
+    axiosInstance
+      .get("/reimbursement" + END_POINT)
+      .then((response) => {
+        console.log(response.data);
+        setReimbursements(response.data.data);
+        setError("");
+      })
+      .catch((error) => {
+        setError((error as any).message || "An error occurred");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
-  const deleteReimbursement = async (id: string) => {
+  const deleteReimbursement = (id: string) => {
     setIsLoading(true);
-    try {
-      await fetch(BASE_URL + "/reimbursement/" + id, {
-        method: "DELETE",
+
+    axiosInstance
+      .delete("/reimbursement/" + id)
+      .then((response) => {
+        console.log(response.data);
+        setError("");
+      })
+      .catch((error) => {
+        setError((error as any).message || "An error occurred");
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-      fetchReimbursements();
-      setError("");
-    } catch (error) {
-      setError((error as any).message || "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   if (isLoading) return <Loading />;
@@ -137,7 +141,6 @@ function DataTable({ user, refreshKey }: UserProps) {
         </Table>
       </Container>
       <UpdateReimbursement
-        user={user}
         showUpdateModal={showUpdateModal}
         reimbursement={selectedReimbursement as ReimbursementInterface}
         handleClose={() => {

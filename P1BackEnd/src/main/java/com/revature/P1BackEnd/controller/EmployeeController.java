@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/employee")
 public class EmployeeController {
     private final EmployeeService employeeService;
@@ -33,7 +32,7 @@ public class EmployeeController {
         return employeeService.getAllReimbursementsByEmployee(id);
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<?> insertEmployee(@Valid @RequestBody Employee employee) {
         return ResponseEntity.ok(employeeService.registerEmployee(employee));
     }

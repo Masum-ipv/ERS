@@ -1,21 +1,19 @@
 import React from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { useState } from "react";
-import { ReimbursementInterface } from "../Interfaces/ReimbursementInterface";
-import { User } from "../Interfaces/UserInterface";
+import { ReimbursementInterface } from "../Utils/Interface";
 import { toast } from "react-toastify";
-import { BASE_URL } from "../Utils/Config";
-import displayErrors from "../Utils/FieldErrors";
+import { useAuth } from "../Utils/AuthContext";
+import axiosInstance from "../Utils/AxioInstance";
+import Loading from "../Utils/Loading";
 
 interface Props {
-  user: User;
   reimbursement: ReimbursementInterface;
   showUpdateModal: boolean;
   handleClose: () => void;
 }
 
 function UpdateReimbursement({
-  user,
   reimbursement,
   showUpdateModal,
   handleClose,
@@ -27,6 +25,8 @@ function UpdateReimbursement({
     amount: reimbursement.amount,
     status: reimbursement.status,
   });
+  const { role } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,40 +37,31 @@ function UpdateReimbursement({
   };
 
   const handleSave = () => {
-    const fetchData = async () => {
-      console.log("Updated User Data:", formData);
-
-      try {
-        const response = await fetch(BASE_URL + "/reimbursement", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            reimbursementId: formData.reimbursementId,
-            description: formData.description,
-            amount: formData.amount,
-            status: formData.status,
-          }),
-        });
-        const data = await response.json();
-        if (response.ok) {
-          toast.success("Reimbursement updated successfully");
-          handleClose(); // Close modal after saving
-        } else {
-          if (data.fieldErrors == null) {
-            toast.error(data.message);
-          } else {
-            displayErrors(data);
-          }
-        }
-        console.log(data);
-      } catch (error) {
-        console.error("Error:", error);
-      }
+    console.log("User Data:", formData);
+    const END_POINT = "/reimbursement";
+    const payload = {
+      reimbursementId: formData.reimbursementId,
+      description: formData.description,
+      amount: formData.amount,
+      status: formData.status,
     };
-    fetchData();
+    setIsLoading(true);
+
+    axiosInstance
+      .put(END_POINT, payload)
+      .then((response) => {
+        console.log(response.data);
+        toast.success(response.data.message);
+        handleClose(); // Close modal after saving
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
+  if (isLoading) return <Loading />;
 
   return (
     <Modal show={showUpdateModal} onHide={handleClose} centered>
@@ -111,7 +102,7 @@ function UpdateReimbursement({
               readOnly
             />
           </Form.Group>
-          {user.role === "MANAGER" && (
+          {role === "MANAGER" && (
             <Form.Group controlId="formStatus">
               <Form.Label>Status</Form.Label>
               <Form.Control

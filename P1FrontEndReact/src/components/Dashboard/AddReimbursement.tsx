@@ -1,21 +1,22 @@
 import { Modal, Button, Form } from "react-bootstrap";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { BASE_URL } from "../Utils/Config";
-import displayErrors from "../Utils/FieldErrors";
+import { useAuth } from "../Utils/AuthContext";
+import axiosInstance from "../Utils/AxioInstance";
+import Loading from "../Utils/Loading";
 
 interface Props {
-  userName: string;
-  userId: string;
   showModal: boolean;
   handleClose: () => void;
 }
 
-function AddReimbursement({ userName, userId, showModal, handleClose }: Props) {
+function AddReimbursement({ showModal, handleClose }: Props) {
   const [formData, setFormData] = useState({
     description: "",
     amount: "",
   });
+  const { username, userId } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -25,48 +26,39 @@ function AddReimbursement({ userName, userId, showModal, handleClose }: Props) {
     }));
   };
 
-  const handleSave = () => {
-    const fetchData = async () => {
-      console.log("User Data:", formData);
-      try {
-        const response = await fetch(BASE_URL + "/reimbursement", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            employeeId: userId,
-            description: formData.description,
-            amount: formData.amount,
-          }),
-        });
-        const data = await response.json();
-        if (response.ok) {
-          console.log(data);
-          toast.success("Reimbursement added successfully");
-          handleClose(); // Close modal after saving
-        } else {
-          if (data.fieldErrors == null) {
-            toast.error(data.message);
-          } else {
-            displayErrors(data);
-          }
-        }
-        console.log(data);
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
-    fetchData();
-    clearFormData();
-  };
-
   const clearFormData = () => {
     setFormData({
       description: "",
       amount: "",
     });
   };
+
+  const handleSave = () => {
+    console.log("User Data:", formData);
+    setIsLoading(true);
+    const END_POINT = "/reimbursement";
+    const payload = {
+      employeeId: userId,
+      description: formData.description,
+      amount: formData.amount,
+    };
+
+    axiosInstance
+      .post(END_POINT, payload)
+      .then((response) => {
+        console.log(response.data);
+        toast.success(response.data.message);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+        handleClose(); // Close modal after saving
+      });
+    clearFormData();
+  };
+  if (isLoading) return <Loading />;
 
   return (
     <Modal show={showModal} onHide={handleClose} centered>
@@ -77,7 +69,12 @@ function AddReimbursement({ userName, userId, showModal, handleClose }: Props) {
         <Form>
           <Form.Group controlId="formName" className="mb-3">
             <Form.Label>Name</Form.Label>
-            <Form.Control type="text" name="name" value={userName} readOnly />
+            <Form.Control
+              type="text"
+              name="name"
+              value={username ?? ""}
+              readOnly
+            />
           </Form.Group>
 
           <Form.Group controlId="formDescription" className="mb-3">

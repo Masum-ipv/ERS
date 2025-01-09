@@ -1,33 +1,31 @@
-import { useLocation } from "react-router-dom";
 import "./Profile.css";
 import NotFoundPage from "../Utils/NotFoundPage";
-import { User } from "../Interfaces/UserInterface";
 import ReimbursementTable from "./ReimbursementTable";
 import { useState } from "react";
 import EmployeeTable from "./EmployeeTable";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
 import AddReimbursement from "./AddReimbursement";
+import { useAuth } from "../Utils/AuthContext";
 
 function Profile() {
-  const location = useLocation();
-  const user = location.state?.user as User; // Access user data
-
   const [activeTab, setActiveTab] = useState("reimbursement");
   const [showModal, setShowModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const { username, logout } = useAuth();
 
   const handleSelect = (selectedKey: string | null) => {
     if (selectedKey) setActiveTab(selectedKey); // Update the active tab
   };
-  console.log(`Manager: user ${user}`);
+  console.log(`Manager: user ${username}`);
 
   const handleLogout = () => {
+    logout();
     window.location.href = "/";
   };
 
   return (
     <>
-      {user ? (
+      {username ? (
         <div className="profile-container container d-flex">
           <div className="container d-flex justify-content-end">
             <Navbar bg="light" expand="lg">
@@ -35,7 +33,7 @@ function Profile() {
               <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="ml-auto">
                   <NavDropdown
-                    title={user.name}
+                    title={username}
                     id="user-profile-dropdown"
                     align="end"
                   >
@@ -62,7 +60,7 @@ function Profile() {
           </Nav>
           {activeTab === "reimbursement" && (
             <>
-              <ReimbursementTable user={user} refreshKey={refreshKey} />
+              <ReimbursementTable refreshKey={refreshKey} />
               <button
                 type="button"
                 className="btn btn-primary w-50 align-self-center mt-5"
@@ -84,8 +82,6 @@ function Profile() {
 
           <AddReimbursement
             showModal={showModal}
-            userName={user.name}
-            userId={user.employeeId}
             handleClose={() => {
               setRefreshKey((refreshKey) => refreshKey + 1);
               setShowModal(false);

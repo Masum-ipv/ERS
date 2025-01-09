@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import Loading from "../Utils/Loading";
-import { User } from "../Interfaces/UserInterface";
+import { User } from "../Utils/Interface";
 import { Button, Container, Table } from "react-bootstrap";
 import SomethingWentWrong from "../Utils/SomethingWentWrong";
-import { BASE_URL } from "../Utils/Config";
+import axiosInstance from "../Utils/AxioInstance";
+import { toast } from "react-toastify";
 
 function DataTable() {
   const [employees, setEmployees] = useState<User[]>([]);
@@ -14,61 +15,58 @@ function DataTable() {
     fetchEmployees();
   }, []);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = () => {
     setIsLoading(true);
-    try {
-      const response = await fetch(BASE_URL + "/employee");
-      const jsonResponse = await response.json();
-      setEmployees(jsonResponse.data);
-      setError("");
-    } catch (error) {
-      setError((error as any).message || "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const deleteEmployee = async (employeeId: string) => {
-    setIsLoading(true);
-    try {
-      await fetch(BASE_URL + "/employee/" + employeeId, {
-        method: "DELETE",
+    axiosInstance
+      .get("/employee")
+      .then((response) => {
+        setEmployees(response.data.data);
+        setError("");
+      })
+      .catch((error) => {
+        setError((error as any).message || "An error occurred");
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-      fetchEmployees();
-      setError("");
-    } catch (error) {
-      setError((error as any).message || "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
   };
 
-  const updateEmployee = async (employee: User) => {
+  const deleteEmployee = (employeeId: string) => {
+    setIsLoading(true);
+    axiosInstance
+      .delete("/employee/" + employeeId)
+      .then((response) => {
+        toast.success(response.data.message);
+        fetchEmployees();
+        setError("");
+      })
+      .catch((error) => {
+        setError((error as any).message || "An error occurred");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const updateEmployee = (employee: User) => {
     setIsLoading(true);
     employee.role === "EMPLOYEE"
       ? (employee.role = "MANAGER")
       : (employee.role = "EMPLOYEE");
-    try {
-      await fetch(BASE_URL + "/employee", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          employeeId: employee.employeeId,
-          name: employee.name,
-          email: employee.email,
-          role: employee.role,
-          password: employee.password,
-        }),
+
+    axiosInstance
+      .put("/employee", employee)
+      .then((response) => {
+        toast.success(response.data.message);
+        fetchEmployees();
+        setError("");
+      })
+      .catch((error) => {
+        setError((error as any).message || "An error occurred");
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-      fetchEmployees();
-      setError("");
-    } catch (error) {
-      setError((error as any).message || "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   if (isLoading) return <Loading />;
