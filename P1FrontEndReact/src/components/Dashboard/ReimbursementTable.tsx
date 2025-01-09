@@ -6,6 +6,7 @@ import Loading from "../Utils/Loading";
 import SomethingWentWrong from "../Utils/SomethingWentWrong";
 import axiosInstance from "../Utils/AxioInstance";
 import { useAuth } from "../Utils/AuthContext";
+import { toast } from "react-toastify";
 
 interface UserProps {
   refreshKey: number;
@@ -58,7 +59,8 @@ function DataTable({ refreshKey }: UserProps) {
     axiosInstance
       .delete("/reimbursement/" + id)
       .then((response) => {
-        console.log(response.data);
+        toast.success(response.data.message);
+        fetchReimbursements();
         setError("");
       })
       .catch((error) => {

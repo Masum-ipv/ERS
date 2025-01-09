@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Button, Form } from "react-bootstrap";
 import Loading from "../Utils/Loading";
-import SomethingWentWrong from "../Utils/SomethingWentWrong";
 import InputField from "../Utils/InputField";
 import displayErrors from "../Utils/FieldErrors";
 import { useAuth } from "../Utils/AuthContext";

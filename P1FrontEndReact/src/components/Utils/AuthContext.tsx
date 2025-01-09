@@ -30,8 +30,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log("Decoded Token:", decodedToken);
       setUsername(decodedToken.sub);
       setRole(decodedToken.role);
-      setUserId(decodedToken.userId);
-      console.log("Decoded Token UserID:", decodedToken.userId);
+      setUserId(decodedToken.userid);
+      console.log("Decoded Token UserID:", decodedToken.userid);
       console.log("Decoded Token role:", decodedToken.role);
     }
   }, [token]);

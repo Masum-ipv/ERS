@@ -5,12 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 /*
- OAuth2 integration.
-1. Add Role Based Authorization
+1. Add OAuth2 integration.
 2. Add Refresh Token
 3. Circuit Breaker (Hystrix).
-Lazy vs. Eager loading, Caching strategies.
-5. Spring boot with AWS
+4. Http only Cookies
  */
 
 // https://www.geeksforgeeks.org/reactive-jwt-authentication-using-spring-webflux/

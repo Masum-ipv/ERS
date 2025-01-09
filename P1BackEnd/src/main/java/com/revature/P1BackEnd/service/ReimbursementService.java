@@ -38,7 +38,7 @@ public class ReimbursementService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<?> getReimbursementById(String id) {
+    public ResponseEntity<?> getReimbursementById(UUID id) {
         logger.info("Retrieving reimbursement with id: {}", id);
         Optional<Reimbursement> reimbursement = reimbursementRepository.findById(id);
         if (reimbursement.isEmpty()) {
@@ -60,13 +60,12 @@ public class ReimbursementService {
             throw new RuntimeException("Employee not found with id: " + reimbursementDTO.employeeId());
         }
 
-        Reimbursement reimbursement = new Reimbursement(
-                UUID.randomUUID().toString(),
-                employee.get(),
-                reimbursementDTO.description(),
-                reimbursementDTO.amount(),
-                Status.PENDING
-        );
+        Reimbursement reimbursement = new Reimbursement();
+        reimbursement.setEmployee(employee.get());
+        reimbursement.setDescription(reimbursementDTO.description());
+        reimbursement.setAmount(reimbursementDTO.amount());
+        reimbursement.setStatus(Status.PENDING);
+
         Reimbursement savedReimbursement = reimbursementRepository.save(reimbursement);
         Reimbursement updatedReimbursement = getReimbursementWithOutPassword(savedReimbursement);
         ApiResponse response = new ApiResponse("Reimbursement inserted successfully", updatedReimbursement);
@@ -88,17 +87,17 @@ public class ReimbursementService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<?> deleteReimbursement(String id) {
-        logger.info("Deleting reimbursement with id: {}", id);
-        if (!reimbursementRepository.existsById(id)) {
-            throw new RuntimeException("Reimbursement not found with id: " + id);
+    public ResponseEntity<?> deleteReimbursement(UUID reimbursementId) {
+        logger.info("Deleting reimbursement with id: {}", reimbursementId);
+        if (!reimbursementRepository.existsById(reimbursementId)) {
+            throw new RuntimeException("Reimbursement not found with id: " + reimbursementId);
         }
-        reimbursementRepository.deleteById(id);
+        reimbursementRepository.deleteById(reimbursementId);
         ApiResponse response = new ApiResponse("Reimbursement deleted successfully", null);
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<?> getPendingReimbursementsByEmployee(Status status, String employeeId) {
+    public ResponseEntity<?> getPendingReimbursementsByEmployee(Status status, UUID employeeId) {
         logger.info("Retrieving pending reimbursements for employee with id: {}", employeeId);
         List<Reimbursement> reimbursements = reimbursementRepository.findByEmployee_EmployeeIdAndStatus(employeeId, status);
         reimbursements = reimbursements.stream().map(this::getReimbursementWithOutPassword).collect(toList());
@@ -114,7 +113,7 @@ public class ReimbursementService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<?> getReimbursementsByEmployee(String employeeId) {
+    public ResponseEntity<?> getReimbursementsByEmployee(UUID employeeId) {
         logger.info("Retrieving reimbursements for employee with id: {}", employeeId);
         List<Reimbursement> reimbursements = reimbursementRepository.findByEmployee_EmployeeId(employeeId);
         reimbursements = reimbursements.stream().map(this::getReimbursementWithOutPassword).collect(toList());

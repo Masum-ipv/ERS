@@ -64,7 +64,7 @@ public class EmployeeService {
     }
 
     @Cacheable(value = "employeesById", key = "#id")
-    public ApiResponse getEmployeeById(String id) {
+    public ApiResponse getEmployeeById(UUID id) {
         logger.info("Retrieving employee with id: {}", id);
         Optional<Employee> employee = employeeRepository.findById(id);
         if (employee.isEmpty()) {
@@ -77,7 +77,7 @@ public class EmployeeService {
     }
 
 
-    public ResponseEntity<?> getAllReimbursementsByEmployee(String employeeId) {
+    public ResponseEntity<?> getAllReimbursementsByEmployee(UUID employeeId) {
         logger.info("Retrieving reimbursements for employee with id: {}", employeeId);
         List<Reimbursement> reimbursements = employeeRepository.findByEmployeeId(employeeId);
         ApiResponse response = new ApiResponse("Reimbursements retrieved successfully", reimbursements);
@@ -87,7 +87,7 @@ public class EmployeeService {
     @CacheEvict(value = "employees", allEntries = true)
     public ApiResponse registerEmployee(Employee employee) {
         logger.info("Inserting employee: {}", employee.getName());
-        employee.setEmployeeId(UUID.randomUUID().toString());
+//        employee.setEmployeeId(UUID.randomUUID().toString());
         if (employeeRepository.existsByEmail(employee.getEmail())) {
             throw new RuntimeException("Employee already exists with email: " + employee.getEmail());
         }
@@ -138,7 +138,7 @@ public class EmployeeService {
             @CacheEvict(value = "employees", allEntries = true),
             @CacheEvict(value = "employeesById", key = "#id")
     })
-    public ApiResponse deleteEmployee(String id) {
+    public ApiResponse deleteEmployee(UUID id) {
         logger.info("Deleting employee with id: {}", id);
         if (!employeeRepository.existsById(id)) {
             throw new RuntimeException("Employee not found with id: " + id);
@@ -166,7 +166,7 @@ public class EmployeeService {
         String role = loggedInUser.getRole().name();
 
         final String token = jwtUtils.generateJwtToken(
-                loggedInUser.getName(), role, loggedInUser.getEmployeeId());
+                loggedInUser.getName(), role, loggedInUser.getEmployeeId().toString());
 
         logger.debug("Logged in user: {} with token: {}", loggedInUser.getName(), token);
 

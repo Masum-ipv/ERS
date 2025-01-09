@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/reimbursement")
 public class ReimbursementController {
@@ -23,7 +25,7 @@ public class ReimbursementController {
     }
 
     @GetMapping("/employee/{employeeId}")
-    public ResponseEntity<?> getReimbursementsByEmployee(@PathVariable String employeeId) {
+    public ResponseEntity<?> getReimbursementsByEmployee(@PathVariable UUID employeeId) {
         return reimbursementService.getReimbursementsByEmployee(employeeId);
     }
 
@@ -33,12 +35,12 @@ public class ReimbursementController {
     }
 
     @GetMapping("/{status}/{employeeId}")
-    public ResponseEntity<?> getPendingReimbursementsByEmployee(@PathVariable Status status, @PathVariable String employeeId) {
+    public ResponseEntity<?> getPendingReimbursementsByEmployee(@PathVariable Status status, @PathVariable UUID employeeId) {
         return reimbursementService.getPendingReimbursementsByEmployee(status, employeeId);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getReimbursementById(@PathVariable String id) {
+    public ResponseEntity<?> getReimbursementById(@PathVariable UUID id) {
         return reimbursementService.getReimbursementById(id);
     }
 
@@ -52,8 +54,8 @@ public class ReimbursementController {
         return reimbursementService.updateReimbursement(reimbursement);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteReimbursement(@PathVariable String id) {
-        return reimbursementService.deleteReimbursement(id);
+    @DeleteMapping("/{reimbursementId}")
+    public ResponseEntity<?> deleteReimbursement(@PathVariable UUID reimbursementId) {
+        return reimbursementService.deleteReimbursement(reimbursementId);
     }
 }

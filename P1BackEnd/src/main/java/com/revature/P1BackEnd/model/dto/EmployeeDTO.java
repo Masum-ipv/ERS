@@ -5,10 +5,11 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public record EmployeeDTO(
-        @NotEmpty(message = "Employee ID is required")
-        String employeeId,
+        @NotNull(message = "Employee ID is required")
+        UUID employeeId,
         @NotEmpty(message = "Name is required")
         String name,
         @NotEmpty(message = "Email is required")

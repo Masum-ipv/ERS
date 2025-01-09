@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -17,7 +17,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class Reimbursement{
     @Id
-    private String reimbursementId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID reimbursementId;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employeeId")
     private Employee employee;

@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/employee")
 public class EmployeeController {
@@ -23,12 +25,12 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getEmployeeById(@PathVariable String id) {
+    public ResponseEntity<?> getEmployeeById(@PathVariable UUID id) {
         return ResponseEntity.ok(employeeService.getEmployeeById(id));
     }
 
     @GetMapping("/reimbursements/{id}")
-    public ResponseEntity<?> getReimbursementsByEmployee(@PathVariable String id) {
+    public ResponseEntity<?> getReimbursementsByEmployee(@PathVariable UUID id) {
         return employeeService.getAllReimbursementsByEmployee(id);
     }
 
@@ -48,7 +50,7 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEmployee(@PathVariable String id) {
+    public ResponseEntity<?> deleteEmployee(@PathVariable UUID id) {
         return ResponseEntity.ok(employeeService.deleteEmployee(id));
     }
 

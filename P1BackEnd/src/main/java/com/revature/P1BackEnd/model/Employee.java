@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 
 @NoArgsConstructor
@@ -25,8 +26,10 @@ import java.util.List;
 @Entity
 public class Employee implements Serializable, UserDetails {
     private static final long serialVersionUID = 1L;
+
     @Id
-    private String employeeId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID employeeId;
     @NotEmpty(message = "Name is required")
     private String name;
     @NotEmpty(message = "Email is required")
